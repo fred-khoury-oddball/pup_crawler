@@ -90,8 +90,8 @@ async function crawlPage(url) {
     // Spawn a new browser for each unvisited link.
     for (let link of links) {
         if (link.startsWith(PROD_URL)) {
-            console.log(`PROD url found ${url}`);
-            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${url}`);
+            console.log(`PROD url found ${link}`);
+            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${link}`);
         } else if (link.startsWith(BASE_URL) && !visitedUrls.has(link)) {
             await crawlPage(link);
         }
