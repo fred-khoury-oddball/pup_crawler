@@ -44,8 +44,8 @@ async function crawlPage(url) {
     fs.appendFileSync(`${startTime}/visited_urls.txt`, `\n${url}`);
     let links = [];
     try {
-        await page.goto(url, { timeout: 10000 });
-        await page.waitForTimeout(7000);
+        await page.goto(url, { timeout: 15000 });
+        await page.waitForTimeout(5000);
 
         const pageText = await page.evaluate(() => document.body.innerText);
         if (pageText.includes("VA.gov isn't working right now")) {
@@ -53,7 +53,6 @@ async function crawlPage(url) {
         }
 
         if (url.endsWith('.pdf')) {
-            const response = await page.goto(url, { timeout: 10000 });
             const buffer = await response.buffer();
             const data = await pdf(buffer);
 
