@@ -13,7 +13,7 @@ const BASE_URL = 'https://www.va.gov/';
 const startTime = Date.now();
 
 async function crawlPage(url) {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({headless:'new'});
     const page = await browser.newPage();
     if (visitedUrls.has(url)) {
         return;
@@ -45,7 +45,7 @@ async function crawlPage(url) {
     let links = [];
     try {
         await page.goto(url, { timeout: 10000 });
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(7000);
 
         const pageText = await page.evaluate(() => document.body.innerText);
         if (pageText.includes("VA.gov isn't working right now")) {
