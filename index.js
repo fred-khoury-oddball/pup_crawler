@@ -9,7 +9,7 @@ const foundUrls = [];
 const failedUrls = [];
 const totalLinks = [];
 let linksVisited = 0;
-const BASE_URL = 'https://www.va.gov/';
+const BASE_URL = 'https://staging.va.gov/';
 const startTime = Date.now();
 
 async function crawlPage(url) {
