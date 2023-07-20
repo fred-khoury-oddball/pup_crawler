@@ -16,7 +16,7 @@ const startTime = Date.now();
 let browser = null;
 async function crawlPage(url) {
     if (!browser) {
-        browser = await puppeteer.launch({ headless: 'new' });
+        browser = await puppeteer.launch({ headless: false, product: 'firefox' });
     }
     const page = await browser.newPage();
     if (visitedUrls.has(url)) {
@@ -26,29 +26,29 @@ async function crawlPage(url) {
 
     if (url.match(/\.(png|jpg|jpeg)$/)) {
         console.log(`Skipping non-HTML page ${url}`);
-        fs.appendFileSync(`${startTime}/logs.txt`, `Skipping non-HTML page ${url}`);
+        fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping non-HTML page ${url}`);
         page.close()
         return;
     }
 
     if (url.includes('#content')) {
         console.log(`Skipping url with #content ${url}`);
-        fs.appendFileSync(`${startTime}/logs.txt`, `Skipping url with #content ${url}`);
+        fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping url with #content ${url}`);
         page.close()
         return;
     }
     //skipping all urls with query strings
     if (url.includes('?')) {
         console.log(`Skipping url with query string ${url}`);
-        fs.appendFileSync(`${startTime}/logs.txt`, `Skipping url with ?next query string ${url}`);
+        fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping url with ?next query string ${url}`);
         page.close()
         return;
     }
 
     console.log(`There are currently ${totalLinks.length - linksVisited} links left to visit`)
-    fs.appendFileSync(`${startTime}/logs.txt`, `There are currently ${totalLinks.length - linksVisited} links left to visit`)
+    fs.appendFileSync(`${startTime}/logs.txt`, `\nThere are currently ${totalLinks.length - linksVisited} links left to visit`)
     console.log(`Crawling page ${url}`);
-    fs.appendFileSync(`${startTime}/logs.txt`, `Crawling page ${url}`);
+    fs.appendFileSync(`${startTime}/logs.txt`, `\nCrawling page ${url}`);
     visitedUrls.add(url);
     fs.appendFileSync(`${startTime}/visited_urls.txt`, `\n${url}`);
     let links = [];
@@ -91,7 +91,7 @@ async function crawlPage(url) {
     for (let link of links) {
         if (link.startsWith(PROD_URL)) {
             console.log(`PROD url found ${url}`);
-            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `${url}`);
+            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${url}`);
         } else if (link.startsWith(BASE_URL) && !visitedUrls.has(link)) {
             await crawlPage(link);
         }
