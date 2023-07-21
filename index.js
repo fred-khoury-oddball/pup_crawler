@@ -16,15 +16,17 @@ const startTime = Date.now();
 let browser = null;
 async function crawlPage(url) {
     if (!browser) {
-        browser = await puppeteer.launch({ headless: false, product: 'firefox' });
+        browser = await puppeteer.launch({ headless: 'new', product: 'firefox' });
     }
     const page = await browser.newPage();
     if (visitedUrls.has(url)) {
+        visitedUrls.add(url);
         page.close()
         return;
     }
 
     if (url.match(/\.(png|jpg|jpeg)$/)) {
+        visitedUrls.add(url);
         console.log(`Skipping non-HTML page ${url}`);
         fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping non-HTML page ${url}`);
         page.close()
@@ -32,6 +34,7 @@ async function crawlPage(url) {
     }
 
     if (url.includes('#content')) {
+        visitedUrls.add(url);
         console.log(`Skipping url with #content ${url}`);
         fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping url with #content ${url}`);
         page.close()
@@ -39,6 +42,7 @@ async function crawlPage(url) {
     }
     //skipping all urls with query strings
     if (url.includes('?')) {
+        visitedUrls.add(url);
         console.log(`Skipping url with query string ${url}`);
         fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping url with ?next query string ${url}`);
         page.close()
@@ -54,7 +58,6 @@ async function crawlPage(url) {
     let links = [];
     try {
         await page.goto(url, { timeout: 15000 });
-        await page.waitForTimeout(5000);
         const pageText = await page.evaluate(() => document.body.innerText);
         if (pageText.includes("VA.gov isn't working right now")) {
             fs.appendFileSync(`${startTime}/needs_manual_review.txt`, `${url}\n`);
@@ -91,7 +94,7 @@ async function crawlPage(url) {
     for (let link of links) {
         if (link.startsWith(PROD_URL)) {
             console.log(`PROD url found ${link}`);
-            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${link}`);
+            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${url},${link}`);
         } else if (link.startsWith(BASE_URL) && !visitedUrls.has(link)) {
             await crawlPage(link);
         }
