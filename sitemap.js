@@ -38,7 +38,7 @@ xml2js.parseString(xml, async function(err, result) {
         // Search for the specific links in the page
         const links = await page.evaluate((url1, url2) => Array.from(document.querySelectorAll('a'))
           .map(a => a.href)
-          .filter(href => href === url1 || href === url2), url1, url2);
+          .filter(href => href.includes(url1) || href.includes(url2)), url1, url2);
         pupc_log('logs.txt',`Found ${links.length} relevant links in ${url}`)
         pupc_log('found_links.txt',`${url} , ${links}`)
     } catch(err){
