@@ -65,7 +65,7 @@ async function crawlPage(url) {
         }
         links = await page.evaluate(() => Array.from(document.querySelectorAll('a'), a => a.href));
 
-        const linkToFind = ['/application/527EZ/introduction', '/burials-and-memorials/application/530/introduction'];
+        const linkToFind = ['/application/527EZ', '/burials-and-memorials/application/530'];
         for (let link of links) {
             for (let targetLink of linkToFind) {
                 if (link.includes(targetLink) && !foundUrls.includes(link)) {

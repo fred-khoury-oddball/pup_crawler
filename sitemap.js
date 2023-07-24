@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // URLs to look for
 const url1 = '/application/527EZ/introduction';
-const url2 = '/burials-and-memorials/application/530/introduction';
+const url2 = '/burials-and-memorials/application/530';
 
 // Reading XML from file
 const xml = fs.readFileSync('./sitemap.xml');
@@ -41,6 +41,9 @@ xml2js.parseString(xml, async function(err, result) {
           .filter(href => href.includes(url1) || href.includes(url2)), url1, url2);
         pupc_log('logs.txt',`Found ${links.length} relevant links in ${url}`)
         pupc_log('found_links.txt',`${url} , ${links}`)
+        for (let link of links){
+            pupc_log('links.txt',`${link}`)
+        }
     } catch(err){
         pupc_log('errors.txt',`${url} , ${err}`)
     }
