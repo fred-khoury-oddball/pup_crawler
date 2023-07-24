@@ -3,7 +3,7 @@ const xml2js = require('xml2js');
 const fs = require('fs');
 
 // URLs to look for
-const url1 = '/application/527EZ/introduction';
+const url1 = '/application/527EZ';
 const url2 = '/burials-and-memorials/application/530';
 
 // Reading XML from file
