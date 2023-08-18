@@ -14,13 +14,13 @@ const BASE_URL = 'https://staging.va.gov/';
 const PROD_URL = 'https://www.va.gov';
 const startTime = Date.now();
 let browser = null;
+
 async function crawlPage(url) {
     if (!browser) {
         browser = await puppeteer.launch({ headless: 'new', product: 'firefox' });
     }
     const page = await browser.newPage();
     if (visitedUrls.has(url)) {
-        visitedUrls.add(url);
         page.close()
         return;
     }
@@ -48,6 +48,14 @@ async function crawlPage(url) {
         page.close()
         return;
     }
+    // skip traversing pdf pages with zoom bc we already traverse them unzoomed in
+    if (url.includes('pdf') && url.includes("&zoom")) {
+        visitedUrls.add(url);
+        console.log(`Skipping url with #content ${url}`);
+        fs.appendFileSync(`${startTime}/logs.txt`, `\nSkipping url with #content ${url}`);
+        page.close()
+        return;
+    }
 
     console.log(`There are currently ${totalLinks.length - linksVisited} links left to visit`)
     fs.appendFileSync(`${startTime}/logs.txt`, `\nThere are currently ${totalLinks.length - linksVisited} links left to visit`)
@@ -57,7 +65,7 @@ async function crawlPage(url) {
     fs.appendFileSync(`${startTime}/visited_urls.txt`, `\n${url}`);
     let links = [];
     try {
-        await page.goto(url, { timeout: 15000 });
+        await page.goto(url, { timeout: 10000 });
         const pageText = await page.evaluate(() => document.body.innerText);
         if (pageText.includes("VA.gov isn't working right now")) {
             fs.appendFileSync(`${startTime}/needs_manual_review.txt`, `${url}\n`);
@@ -75,6 +83,16 @@ async function crawlPage(url) {
                     fs.appendFileSync(`${startTime}/found_urls.txt`, `\n${link} || ${targetLink}`);
                 }
             }
+            if (!totalLinks.includes(link)) {
+                totalLinks.push(link)
+            }
+            // Spawn a new browser for each unvisited link.
+            if (link.startsWith(PROD_URL)) {
+                console.log(`PROD url found ${link}`);
+                fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${url},${link}`);
+            } else if (link.startsWith(BASE_URL) && !visitedUrls.has(link)) {
+                await crawlPage(link);
+            }
         }
     } catch (error) {
         console.log(`Failed to crawl "${url}": ${error.message}`);
@@ -83,21 +101,6 @@ async function crawlPage(url) {
         fs.appendFileSync(`${startTime}/failed_urls.txt`, `\n${url}`);
     } finally {
         await page.close();
-    }
-
-    for (let link of links) {
-        if (!totalLinks.includes(link)) {
-            totalLinks.push(link)
-        }
-    }
-    // Spawn a new browser for each unvisited link.
-    for (let link of links) {
-        if (link.startsWith(PROD_URL)) {
-            console.log(`PROD url found ${link}`);
-            fs.appendFileSync(`${startTime}/prod_urls_found.txt`, `\n${url},${link}`);
-        } else if (link.startsWith(BASE_URL) && !visitedUrls.has(link)) {
-            await crawlPage(link);
-        }
     }
 }
 
@@ -108,8 +111,13 @@ async function runCrawler() {
     } catch (err) {
         console.error(err);
     }
+    process.on('unhandledRejection', (reason, p) => {
+        console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+        fs.appendFileSync(`${startTime}/logs.txt`, `\nUnhandled Rejection at: Promise ${p}\treason: ${reason}`);
+    });
     await crawlPage(BASE_URL);
     browser.close()
+    console.log('All links have been crawled!')
 }
 
 runCrawler();

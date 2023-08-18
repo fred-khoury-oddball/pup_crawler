@@ -1,5 +1,9 @@
 <urlset xmlns="http://staging.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://staging.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://staging.w3.org/1999/xhtml" xmlns:mobile="http://staging.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://staging.google.com/schemas/sitemap-image/1.1" xmlns:video="http://staging.google.com/schemas/sitemap-video/1.1">
 <url>
+<loc>https://staging.va.gov/burials-memorials/veterans-burial-allowance/</loc>
+<lastmod>2023-07-24</lastmod>
+</url>
+<url>
 <loc>https://staging.va.gov/lovell-federal-health-care-tricare/stories/</loc>
 <lastmod>2023-07-24</lastmod>
 </url>
